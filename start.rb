@@ -57,6 +57,7 @@ module Service
 
     def self.kill(pid, signal='SIGINT')
       Process.kill(signal, pid)
+      Process.waitpid(pid)
     end
 
     def self.fire_and_forget(*args)
@@ -229,6 +230,30 @@ module Service
       File.write(@config_path, ERB.new(File.read(@config_erb_path)).result(binding))
     end
   end
+
+  class Squid < Base
+    attr_reader :privoxy_port
+    attr_reader :permit
+    attr_reader :deny
+
+    def initialize()
+      @config_erb_path = "/usr/local/etc/squid.conf.erb"
+      @config_path = "/usr/local/etc/squid.conf"
+      @privoxy_port = ENV['privoxy_port'] || 8118
+      @port = ENV['squid_port'] || 8119
+    end
+
+    def start
+      super
+      compile_config
+      self.class.fire_and_forget(executable, "-N", "-f #{@config_path}", "| logger 2>&1")
+    end
+
+    private
+    def compile_config
+      File.write(@config_path, ERB.new(File.read(@config_erb_path)).result(binding))
+    end
+  end
 end
 
 
@@ -248,6 +273,16 @@ haproxy.start
 if ENV['privoxy']
   privoxy = Service::Privoxy.new
   privoxy.start
+end
+
+if ENV['squid']
+  unless ENV['privoxy']
+  privoxy = Service::Privoxy.new
+  privoxy.start
+  end
+
+  squid = Service::Squid.new
+  squid.start
 end
 
 sleep 60
