@@ -4,9 +4,9 @@ alpine-tor
 ```
                Docker Container
                -------------------------------------
-               (Optional)           <-> Tor Proxy 1
-Client <---->   Privoxy <-> HAproxy <-> Tor Proxy 2
-                                    <-> Tor Proxy n
+            (Optional)     (Optional)           <-> Tor Proxy 1
+Client <----> Squid <---->  Privoxy <-> HAproxy <-> Tor Proxy 2
+                                                <-> Tor Proxy n
 ```
 
 Parents
@@ -23,6 +23,10 @@ Optionaly adds support for [Privoxy](https://www.privoxy.org/) using
 `-e privoxy=1`, useful for http (default `8118`, changable via
 `-e privoxy_port=<port>`) proxy forward and ad removal.
 
+Optionaly adds support for [Squid](http://www.squid-cache.org/) using 
+`-e squid=1`, squid doesn't support socks5 so privoxy is also used (default port `8119` changable via `-e squid_port=<port>`).
+Setup password first with `htpasswd -c passwords $USER`
+
 Environment Variables
 -----
  * `tors` - Integer, number of tor instances to run. (Default: 20)
@@ -36,6 +40,8 @@ Environment Variables
  * `privoxy_port` - Integer, port for privoxy. (Default: 8118)
  * `privoxy_permit` - Space-separated list of source addresses for permit-access option. (Default: Unset)
  * `privoxy_deny` - Space-separated list of source addresses for deny-access option. (Default: Unset)
+ * `squid` - Boolean, whatever to run insance of squid in front of privoxy/haproxy.
+ * `squid_port` - Integer, port for squid. (Default: 8119)
  * `haproxy_port` - Integer, port for haproxy. (Default: 5566)
  * `haproxy_stats` - Integer, port for haproxy monitor. (Default: 2090)
  * `haproxy_login` and `haproxy_pass` - BasicAuth config for haproxy monitor.
@@ -50,16 +56,16 @@ Usage
 
 ```bash
 # build docker container
-docker build -t zeta0/alpine-tor:latest .
-
-# ... or pull docker container
-docker pull zeta0/alpine-tor:latest
+docker build -t oxis/alpine-tor:latest .
 
 # start docker container
-docker run -d -p 5566:5566 -p 2090:2090 -e tors=25 zeta0/alpine-tor
+docker run -d -p 5566:5566 -p 2090:2090 -e tors=25 oxis/alpine-tor
 
 # start docker with privoxy enabled and exposed
-docker run -d -p 8118:8118 -p 2090:2090 -e tors=25 -e privoxy=1 zeta0/alpine-tor
+docker run -d -p 8118:8118 -p 2090:2090 -e tors=25 -e privoxy=1 oxis/alpine-tor
+
+# start docker with squid enabled and exposed
+docker run -d -p 8119:8119 -p 2090:2090 -e tors=25 -e squid=1 oxis/alpine-tor
 
 # test with ...
 curl --socks5 localhost:5566 http://httpbin.org/ip
@@ -78,7 +84,7 @@ http://localhost:2090 or http://admin:admin@localhost:2090
 
 # start docket container with new auth
 docker run -d -p 5566:5566 -p 2090:2090 -e haproxy_login=MySecureLogin \
-    -e haproxy_pass=MySecurePassword zeta0/alpine-tor
+    -e haproxy_pass=MySecurePassword oxis/alpine-tor
 ```
 
 Further Readings
