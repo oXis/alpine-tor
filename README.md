@@ -25,7 +25,7 @@ Optionaly adds support for [Privoxy](https://www.privoxy.org/) using
 
 Optionaly adds support for [Squid](http://www.squid-cache.org/) using 
 `-e squid=1`, squid doesn't support socks5 so privoxy is also used (default port `8119` changable via `-e squid_port=<port>`).
-Setup password first with `htpasswd -c passwords $USER`
+Setup password first with `htpasswd -c passwords $USER` (default `admin:admin`)
 
 Environment Variables
 -----
