@@ -55,9 +55,9 @@ module Service
       end
     end
 
-    def self.kill(pid, signal='SIGINT')
+    def self.kill(pid, signal='SIGTERM')
       Process.kill(signal, pid)
-      Process.waitpid(pid)
+      # Process.wait(pid)
     end
 
     def self.fire_and_forget(*args)
@@ -285,17 +285,18 @@ if ENV['squid']
   squid.start
 end
 
-sleep 60
+# sleep 60
 
 loop do
   $logger.info "testing proxies"
   proxies.each do |proxy|
     $logger.info "testing proxy #{proxy.id} (port #{proxy.port})"
-    proxy.restart unless proxy.working?
+    # proxy.restart unless proxy.working?
+    proxy.restart
     $logger.info "sleeping for #{tor_instances} seconds"
-    sleep Integer(tor_instances)
+    # sleep Integer(tor_instances)
   end
 
   $logger.info "sleeping for 60 seconds"
-  sleep 60
+  # sleep 60
 end
