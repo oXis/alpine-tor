@@ -285,18 +285,17 @@ if ENV['squid']
   squid.start
 end
 
-# sleep 60
+sleep 60
 
 loop do
   $logger.info "testing proxies"
   proxies.each do |proxy|
     $logger.info "testing proxy #{proxy.id} (port #{proxy.port})"
-    # proxy.restart unless proxy.working?
-    proxy.restart
+    proxy.restart unless proxy.working?
     $logger.info "sleeping for #{tor_instances} seconds"
-    # sleep Integer(tor_instances)
+    sleep Integer(tor_instances)
   end
 
   $logger.info "sleeping for 60 seconds"
-  # sleep 60
+  sleep 60
 end
