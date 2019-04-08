@@ -1,3 +1,5 @@
+# *WARNING* Personnal project modified to use debian-slim and squid. Not recommanded.
+
 alpine-tor
 ==================
 
